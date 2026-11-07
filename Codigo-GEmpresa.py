@@ -41,8 +41,7 @@ openpyxl>=3.1,<4.0
 reportlab>=4.2,<5.0
  
  
-# Infrastructure reference only. The current FastAPI app still uses SQLite and
-# must be migrated to the PostgreSQL adapter before connecting it to this stack.
+# 
 services:
   postgres:
     image: postgres:16
