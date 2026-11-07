@@ -1,0 +1,6 @@
+psycopg[binary]>=3.2,<4.0
+redis>=5.0,<7.0
+celery>=5.4,<6.0
+cryptography>=43.0,<46.0
+
+cryptography>=43.0,<46.0
