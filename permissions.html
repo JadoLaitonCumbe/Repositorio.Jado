@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Permissões · {{ company.name }}{% endblock %}
+{% block content %}
+<style>
+.perm-wrap{max-width:1000px;margin:38px auto;padding:0 22px}.perm-panel{background:#fff;border:1px solid #e5e9e7;border-radius:16px;padding:22px;margin:18px 0}.perm-form{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;align-items:end}.perm-form label{display:block}.perm-form select{width:100%;margin-top:6px}.perm-table{width:100%;border-collapse:collapse}.perm-table td,.perm-table th{padding:11px;border-bottom:1px solid #edf0ee;text-align:left}.perm-help{color:#63736a;font-size:13px}
+</style>
+<div class="perm-wrap">
+  <a class="back" href="/dashboard">← Voltar ao painel</a>
+  <div class="eyebrow">ADMINISTRAÇÃO DA EMPRESA</div><h1>Perfis e permissões</h1>
+  <p class="perm-help">As permissões são verificadas no servidor. As alterações aplicam-se a todos os funcionários com o perfil selecionado. Os perfis Proprietário e Administrador mantêm controlo total.</p>
+  <section class="perm-panel"><h2>Configurar permissão</h2>
+    <form class="perm-form" method="post" action="/empresa/permissoes">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <div><label>Perfil</label><select name="role">{% for role in roles %}<option value="{{ role }}">{{ role|capitalize }}</option>{% endfor %}</select></div>
+      <div><label>Permissão</label><select name="permission">{% for permission in permissions %}<option value="{{ permission }}">{{ permission }}</option>{% endfor %}</select></div>
+      <div><label>Acesso</label><select name="granted"><option value="true">Permitir</option><option value="false">Negar</option></select></div>
+      <button class="primary" type="submit">Guardar alteração</button>
+    </form>
+  </section>
+  <section class="perm-panel"><h2>Exceções configuradas</h2>
+    <table class="perm-table"><thead><tr><th>Perfil</th><th>Permissão</th><th>Estado</th></tr></thead><tbody>
+    {% for item in overrides %}<tr><td>{{ item['role'] }}</td><td>{{ item['permission'] }}</td><td>{{ 'Permitida' if item['granted'] else 'Negada' }}</td></tr>{% else %}<tr><td colspan="3">Ainda não existem exceções. Aplicam-se as permissões padrão de cada perfil.</td></tr>{% endfor %}
+    </tbody></table>
+  </section>
+</div>
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Administrador Geral · GEmpresa-JLC{% endblock %}
+{% block content %}
+<style>
+.admin-wrap{max-width:1180px;margin:36px auto;padding:0 22px}.admin-head{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}.admin-head h1{margin:6px 0}.admin-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin:24px 0}.admin-card,.admin-panel{background:#fff;border:1px solid #e5e9e7;border-radius:16px;padding:20px;box-shadow:0 8px 28px #163c2810}.admin-card span{display:block;color:#65756c;font-size:13px}.admin-card strong{display:block;font-size:30px;margin-top:8px}.admin-panel{margin:18px 0;overflow:auto}.admin-panel h2{margin-top:0}.admin-table{width:100%;border-collapse:collapse;min-width:760px}.admin-table th,.admin-table td{text-align:left;padding:12px;border-bottom:1px solid #edf0ee;font-size:14px}.admin-table th{color:#617168;font-weight:600}.admin-actions{display:flex;gap:6px;align-items:center}.admin-actions select{max-width:125px;padding:8px}.admin-login{max-width:430px;margin:70px auto}.admin-login input{width:100%;margin:8px 0 16px}.admin-login button{width:100%}.admin-note{color:#66756c;font-size:13px}.pill-status{padding:5px 9px;border-radius:30px;background:#edf3ef;font-size:12px}.pill-pending{background:#fff4d8}.pill-blocked{background:#ffe6e4}
+</style>
+<div class="admin-wrap">
+{% if not authenticated %}
+  <section class="admin-panel admin-login">
+    <div class="eyebrow">CENTRO DE CONTROLO NACIONAL</div><h1>Administrador Geral</h1>
+    <p class="admin-note">Acesso restrito à equipa de administração da plataforma GEmpresa-JLC.</p>
+    {% if error %}<p class="error">{{ error }}</p>{% endif %}
+    <form method="post" action="/admin/login">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <label>Nome de utilizador</label><input name="username" required autocomplete="username">
+      <label>Palavra-passe</label><input name="password" type="password" required autocomplete="current-password">
+      <button class="primary" type="submit">Entrar no painel →</button>
+    </form>
+  </section>
+{% else %}
+  <div class="admin-head"><div><div class="eyebrow">PLATAFORMA MULTIEMPRESA · MOÇAMBIQUE</div><h1>Centro de Administração Geral</h1><p class="muted">Aprovação, supervisão e controlo das empresas registadas.</p></div>
+  <form method="post" action="/admin/logout"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button class="secondary">Terminar sessão</button></form></div>
+  <div class="admin-cards">
+    <div class="admin-card"><span>Total de empresas</span><strong>{{ stats.get('pending',0)+stats.get('active',0)+stats.get('blocked',0) }}</strong></div>
+    <div class="admin-card"><span>Aguardam aprovação</span><strong>{{ stats.get('pending',0) }}</strong></div>
+    <div class="admin-card"><span>Empresas ativas</span><strong>{{ stats.get('active',0) }}</strong></div>
+    <div class="admin-card"><span>Empresas bloqueadas</span><strong>{{ stats.get('blocked',0) }}</strong></div>
+  </div>
+  <section class="admin-panel"><h2>Diretório de empresas</h2><p class="admin-note">A lista apresenta até 100 registos recentes. Para pesquisa e paginação, utilize a API administrativa.</p>
+  <table class="admin-table"><thead><tr><th>Empresa</th><th>Utilizador</th><th>Província</th><th>Distrito</th><th>Estado</th><th>Alterar estado</th></tr></thead><tbody>
+  {% for c in companies %}<tr><td><b>{{ c['name'] }}</b><br><small>{{ c['created_at'] }}</small></td><td>{{ c['username'] }}</td><td>{{ c['province'] or '—' }}</td><td>{{ c['district'] or '—' }}</td><td><span class="pill-status {% if c['status']=='pending' %}pill-pending{% elif c['status']=='blocked' %}pill-blocked{% endif %}">{{ c['status'] }}</span></td><td><form class="admin-actions" method="post" action="/admin/companies/{{ c['id'] }}/status"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><select name="status"><option value="pending" {% if c['status']=='pending' %}selected{% endif %}>Pendente</option><option value="active" {% if c['status']=='active' %}selected{% endif %}>Aprovar</option><option value="blocked" {% if c['status']=='blocked' %}selected{% endif %}>Bloquear</option></select><button class="primary" type="submit">Guardar</button></form></td></tr>{% else %}<tr><td colspan="6">Ainda não existem empresas registadas.</td></tr>{% endfor %}
+  </tbody></table></section>
+{% endif %}
+</div>
+{% endblock %}
